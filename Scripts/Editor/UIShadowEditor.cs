@@ -16,7 +16,6 @@ namespace Coffee.UIEffects.Editors
         SerializedProperty _spEffectDistance;
         SerializedProperty _spEffectColor;
         SerializedProperty _spUseGraphicAlpha;
-        SerializedProperty _spBlurFactor;
 
         void OnEnable()
         {
@@ -25,7 +24,6 @@ namespace Coffee.UIEffects.Editors
             _spEffectDistance = serializedObject.FindProperty("m_EffectDistance");
             _spEffectColor = serializedObject.FindProperty("m_EffectColor");
             _spUseGraphicAlpha = serializedObject.FindProperty("m_UseGraphicAlpha");
-            _spBlurFactor = serializedObject.FindProperty("m_BlurFactor");
         }
 
         /// <summary>
@@ -47,11 +45,6 @@ namespace Coffee.UIEffects.Editors
                 EditorGUILayout.PropertyField(_spEffectDistance);
                 EditorGUILayout.PropertyField(_spEffectColor);
                 EditorGUILayout.PropertyField(_spUseGraphicAlpha);
-
-                if (uiEffect && uiEffect.blurMode != BlurMode.None)
-                {
-                    EditorGUILayout.PropertyField(_spBlurFactor);
-                }
 
                 EditorGUI.indentLevel--;
             }

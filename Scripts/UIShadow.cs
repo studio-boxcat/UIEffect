@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
-#if UNITY_EDITOR
-using System.IO;
-using System.Linq;
-using UnityEditor;
-
-#endif
 
 namespace Coffee.UIEffects
 {
@@ -24,12 +16,6 @@ namespace Coffee.UIEffects
 
         int _graphicVertexCount;
         UIEffect _uiEffect;
-
-        [Tooltip("How far is the blurring shadow from the graphic.")]
-        [FormerlySerializedAs("m_Blur")]
-        [SerializeField]
-        [Range(0, 1)]
-        float m_BlurFactor = 1;
 
         [Tooltip("Shadow effect style.")] [SerializeField]
         ShadowStyle m_Style = ShadowStyle.Shadow;
@@ -81,21 +67,6 @@ namespace Coffee.UIEffects
             {
                 if (m_UseGraphicAlpha == value) return;
                 m_UseGraphicAlpha = value;
-                SetEffectParamsDirty();
-            }
-        }
-
-        /// <summary>
-        /// How far is the blurring shadow from the graphic.
-        /// </summary>
-        public float blurFactor
-        {
-            get { return m_BlurFactor; }
-            set
-            {
-                value = Mathf.Clamp(value, 0, 2);
-                if (Mathf.Approximately(m_BlurFactor, value)) return;
-                m_BlurFactor = value;
                 SetEffectParamsDirty();
             }
         }
@@ -218,9 +189,7 @@ namespace Coffee.UIEffects
 
                 if (paramTex != null && _uiEffect && _uiEffect.isActiveAndEnabled)
                 {
-                    paramTex.SetData(this, 0, _uiEffect.effectFactor); // param.x : effect factor
                     paramTex.SetData(this, 1, 255); // param.y : color factor
-                    paramTex.SetData(this, 2, m_BlurFactor); // param.z : blur factor
                 }
 
                 ApplyShadow(s_Verts, effectColor, ref start, ref end, effectDistance, style, useGraphicAlpha);

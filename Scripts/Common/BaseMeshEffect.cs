@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -42,8 +41,6 @@ namespace Coffee.UIEffects
             get { return _rectTransform ? _rectTransform : _rectTransform = GetComponent<RectTransform>(); }
         }
 
-        internal readonly List<UISyncEffect> syncEffects = new List<UISyncEffect>(0);
-
         /// <summary>
         /// Call used to modify mesh. (legacy)
         /// </summary>
@@ -71,11 +68,6 @@ namespace Coffee.UIEffects
         protected virtual void SetVerticesDirty()
         {
             connector.SetVerticesDirty(graphic);
-
-            foreach (var effect in syncEffects)
-            {
-                effect.SetVerticesDirty();
-            }
 
 // #if TMP_PRESENT
 //             if (textMeshPro)

@@ -16,7 +16,6 @@ namespace Coffee.UIEffects
     public static class EffectAreaExtensions
     {
         static readonly Rect rectForCharacter = new Rect(0, 0, 1, 1);
-        static readonly Vector2[] splitedCharacterPosition = {Vector2.up, Vector2.one, Vector2.right, Vector2.zero};
 
         /// <summary>
         /// Gets effect for area.
@@ -71,46 +70,6 @@ namespace Coffee.UIEffects
             }
 
             return rect;
-        }
-
-        /// <summary>
-        /// Gets position factor for area.
-        /// </summary>
-        public static void GetPositionFactor(this EffectArea area, int index, Rect rect, Vector2 position, bool isText,
-            bool isTMPro, out float x, out float y)
-        {
-            if (isText && area == EffectArea.Character)
-            {
-                index = isTMPro ? (index + 3) % 4 : index % 4;
-                x = splitedCharacterPosition[index].x;
-                y = splitedCharacterPosition[index].y;
-            }
-            else if (area == EffectArea.Fit)
-            {
-                x = Mathf.Clamp01((position.x - rect.xMin) / rect.width);
-                y = Mathf.Clamp01((position.y - rect.yMin) / rect.height);
-            }
-            else
-            {
-                x = Mathf.Clamp01(position.x / rect.width + 0.5f);
-                y = Mathf.Clamp01(position.y / rect.height + 0.5f);
-            }
-        }
-
-        /// <summary>
-        /// Normalize vertex position by local matrix.
-        /// </summary>
-        public static void GetNormalizedFactor(this EffectArea area, int index, Matrix2x3 matrix, Vector2 position,
-            bool isText, out Vector2 nomalizedPos)
-        {
-            if (isText && area == EffectArea.Character)
-            {
-                nomalizedPos = matrix * splitedCharacterPosition[(index + 3) % 4];
-            }
-            else
-            {
-                nomalizedPos = matrix * position;
-            }
         }
     }
 }

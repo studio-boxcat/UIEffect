@@ -57,27 +57,11 @@ namespace Coffee.UIEffects
         }
 
         /// <summary>
-        /// Extra channel.
-        /// </summary>
-        public virtual AdditionalCanvasShaderChannels extraChannel
-        {
-            get { return AdditionalCanvasShaderChannels.TexCoord1; }
-        }
-
-        /// <summary>
         /// The connector is valid for the component.
         /// </summary>
         protected virtual bool IsValid(Graphic graphic)
         {
             return true;
-        }
-
-        /// <summary>
-        /// Find effect shader.
-        /// </summary>
-        public virtual Shader FindShader(string shaderName)
-        {
-            return Shader.Find("Hidden/" + shaderName);
         }
 
         /// <summary>
@@ -110,33 +94,6 @@ namespace Coffee.UIEffects
         {
             if (graphic)
                 graphic.SetMaterialDirty();
-        }
-
-        /// <summary>
-        /// Gets position factor for area.
-        /// </summary>
-        public virtual void GetPositionFactor(EffectArea area, int index, Rect rect, Vector2 position, out float x, out float y)
-        {
-            if (area == EffectArea.Fit)
-            {
-                x = Mathf.Clamp01((position.x - rect.xMin) / rect.width);
-                y = Mathf.Clamp01((position.y - rect.yMin) / rect.height);
-            }
-            else
-            {
-                x = Mathf.Clamp01(position.x / rect.width + 0.5f);
-                y = Mathf.Clamp01(position.y / rect.height + 0.5f);
-            }
-        }
-
-        public virtual bool IsText(Graphic graphic)
-        {
-            return graphic && graphic is Text;
-        }
-
-        public virtual void SetExtraChannel(ref UIVertex vertex, Vector2 value)
-        {
-            vertex.uv1 = value;
         }
 
         /// <summary>

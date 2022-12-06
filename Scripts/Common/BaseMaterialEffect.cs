@@ -39,11 +39,6 @@ namespace Coffee.UIEffects
         public void SetMaterialDirty()
         {
             connector.SetMaterialDirty(graphic);
-
-            foreach (var effect in syncEffects)
-            {
-                effect.SetMaterialDirty();
-            }
         }
 
         public virtual Hash128 GetMaterialHash(Material baseMaterial)
