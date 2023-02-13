@@ -108,6 +108,33 @@ namespace Coffee.UIEffects
             }
         }
 
+        /// <summary>
+        /// Modifies the mesh.
+        /// </summary>
+        public override void ModifyMesh(Mesh mesh)
+        {
+            if (!isActiveAndEnabled)
+            {
+                return;
+            }
+
+            var normalizedIndex = paramTex.GetNormalizedIndex(this);
+
+            {
+                var count = mesh.vertexCount;
+                var uvs = mesh.uv;
+                for (var i = 0; i < count; i++)
+                {
+                    var uv = uvs[i];
+                    uvs[i] = new Vector2(
+                        Packer.ToFloat((uv.x + 0.5f) / 2f, (uv.y + 0.5f) / 2f),
+                        normalizedIndex
+                    );
+                }
+                mesh.SetUVs(0, uvs);
+            }
+        }
+
         protected override void SetEffectParamsDirty()
         {
             paramTex.SetData(this, 1, m_ColorFactor); // param.y : color factor
