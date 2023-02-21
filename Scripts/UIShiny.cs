@@ -201,6 +201,44 @@ namespace Coffee.UIEffects
         /// <summary>
         /// Modifies the mesh.
         /// </summary>
+        public override void ModifyMesh(Mesh mesh)
+        {
+            if (!isActiveAndEnabled)
+                return;
+
+            var normalizedIndex = paramTex.GetNormalizedIndex(this);
+            var rect = m_EffectArea.GetEffectArea(mesh, rectTransform.rect);
+
+            // rotation.
+            var rad = m_Rotation * Mathf.Deg2Rad;
+            var dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
+            dir.x *= rect.height / rect.width;
+            dir = dir.normalized;
+
+            // Calculate vertex position.
+            var vertices = mesh.vertices;
+            var uvs = mesh.uv;
+            var localMatrix = new Matrix2x3(rect, dir.x, dir.y); // Get local matrix.
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                var vertex = vertices[i];
+                Vector2 normalizedPos;
+                connector.GetNormalizedFactor(m_EffectArea, i, localMatrix, vertex, out normalizedPos);
+
+                var uv = uvs[i];
+                uvs[i] = new Vector2(
+                    Packer.ToFloat(uv.x, uv.y),
+                    Packer.ToFloat(normalizedPos.y, normalizedIndex)
+                );
+            }
+
+            mesh.SetVertices(vertices);
+            mesh.SetUVs(0, uvs);
+        }
+
+        /// <summary>
+        /// Modifies the mesh.
+        /// </summary>
         public override void ModifyMesh(VertexHelper vh, Graphic graphic)
         {
             if (!isActiveAndEnabled)
