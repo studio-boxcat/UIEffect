@@ -232,7 +232,6 @@ namespace Coffee.UIEffects
                 );
             }
 
-            mesh.SetVertices(vertices);
             mesh.SetUVs(0, uvs);
         }
 
