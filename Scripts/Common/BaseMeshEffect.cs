@@ -141,7 +141,7 @@ namespace Coffee.UIEffects
         /// <summary>
         /// This function is called when the object becomes enabled and active.
         /// </summary>
-        protected override void OnEnable()
+        protected virtual void OnEnable()
         {
             connector.OnEnable(graphic);
             SetVerticesDirty();
@@ -177,7 +177,7 @@ namespace Coffee.UIEffects
         /// <summary>
         /// This function is called when the behaviour becomes disabled () or inactive.
         /// </summary>
-        protected override void OnDisable()
+        protected virtual void OnDisable()
         {
             connector.OnDisable(graphic);
             SetVerticesDirty();
@@ -195,14 +195,14 @@ namespace Coffee.UIEffects
         /// <summary>
         /// Callback for when properties have been changed by animation.
         /// </summary>
-        protected override void OnDidApplyAnimationProperties()
+        protected virtual void OnDidApplyAnimationProperties()
         {
             if (!isActiveAndEnabled) return;
             SetEffectParamsDirty();
         }
 
 #if UNITY_EDITOR
-        protected override void Reset()
+        protected virtual void Reset()
         {
             if (!isActiveAndEnabled) return;
             SetVerticesDirty();
@@ -211,7 +211,7 @@ namespace Coffee.UIEffects
         /// <summary>
         /// This function is called when the script is loaded or a value is changed in the inspector (Called in the editor only).
         /// </summary>
-        protected override void OnValidate()
+        protected virtual void OnValidate()
         {
             if (!isActiveAndEnabled) return;
             SetEffectParamsDirty();
