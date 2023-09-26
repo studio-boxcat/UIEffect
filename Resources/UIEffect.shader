@@ -1,4 +1,4 @@
-﻿Shader "Hidden/UI/Default (UIEffect)"
+﻿Shader "UIEffect/UIEffect"
 {
 	Properties
 	{
@@ -58,12 +58,10 @@
 			#pragma target 3.0
 			#endif
 
-			#pragma multi_compile __ UNITY_UI_ALPHACLIP
+			#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
+			#pragma multi_compile_local ADD FILL
 
-			#pragma multi_compile __ ADD FILL
-
-			#include "UnityCG.cginc"
-			#include "UnityUI.cginc"
+		#include "UnityUI.cginc"
 
 			#define UI_EFFECT 1
 			#include "UIEffect.cginc"
@@ -74,7 +72,7 @@
 				fixed4 param = tex2D(_ParamTex, float2(0.25, IN.eParam));
                 fixed colorFactor = param.y;
 
-				half4 color = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd);
+				half4 color = tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd;
 
 				color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
 

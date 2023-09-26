@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
-using System.Collections;
 
 namespace Coffee.UIEffects
 {
@@ -13,8 +10,7 @@ namespace Coffee.UIEffects
     [AddComponentMenu("UI/UIEffects/UIShiny", 2)]
     public class UIShiny : BaseMaterialEffect
     {
-        private const uint k_ShaderId = 1 << 3;
-        private static readonly ParameterTexture s_ParamTex = new ParameterTexture(8, 128, "_ParamTex");
+        private static readonly ParameterTexture s_ParamTex = new(8, 128, "_ParamTex");
 
         float _lastRotation;
         EffectArea _lastEffectArea;
@@ -176,26 +172,23 @@ namespace Coffee.UIEffects
             effectPlayer.OnDisable();
         }
 
-
-        public override Hash128 GetMaterialHash(Material material)
+        protected override ulong GetMaterialHash(Material baseMaterial)
         {
-            if (!isActiveAndEnabled || !material || !material.shader)
-                return k_InvalidHash;
-
-            return new Hash128(
-                (uint) material.GetInstanceID(),
-                k_ShaderId,
-                0,
-                0
-            );
+            return MaterialCache.GetMaterialHash(baseMaterial, 0);
         }
 
-        public override void ModifyMaterial(Material newMaterial, Graphic graphic)
+        protected override Material CreateMaterial(Material baseMaterial)
         {
-            var connector = GraphicConnector.FindConnector(graphic);
+            var newShader = ShaderRepo.GetShiny(baseMaterial.shader.name);
+            if (newShader is null) return null;
 
-            newMaterial.shader = Shader.Find(string.Format("Hidden/{0} (UIShiny)", newMaterial.shader.name));
-            paramTex.RegisterMaterial(newMaterial);
+            var material = new Material(baseMaterial)
+            {
+                shader = newShader,
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            paramTex.RegisterToMaterial(material);
+            return material;
         }
 
         /// <summary>
@@ -223,7 +216,7 @@ namespace Coffee.UIEffects
             {
                 var vertex = vertices[i];
                 Vector2 normalizedPos;
-                connector.GetNormalizedFactor(m_EffectArea, i, localMatrix, vertex, out normalizedPos);
+                normalizedPos = localMatrix * vertex;
 
                 var uv = uvs[i];
                 uvs[i] = new Vector2(
@@ -259,7 +252,7 @@ namespace Coffee.UIEffects
             {
                 vh.PopulateUIVertex(ref vertex, i);
                 Vector2 normalizedPos;
-                connector.GetNormalizedFactor(m_EffectArea, i, localMatrix, vertex.position, out normalizedPos);
+                normalizedPos = localMatrix * vertex.position;
 
                 vertex.uv0 = new Vector2(
                     Packer.ToFloat(vertex.uv0.x, vertex.uv0.y),

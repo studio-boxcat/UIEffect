@@ -1,4 +1,4 @@
-Shader "Hidden/UI/Default (UIShiny)"
+Shader "UIEffect/UIShiny"
 {
 	Properties
 	{
@@ -54,9 +54,8 @@ Shader "Hidden/UI/Default (UIShiny)"
 			#pragma fragment frag
 			#pragma target 2.0
 
-			#pragma multi_compile __ UNITY_UI_ALPHACLIP
+			#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 
-			#include "UnityCG.cginc"
 			#include "UnityUI.cginc"
 
 			#define UI_SHINY 1

@@ -10,23 +10,22 @@ namespace Coffee.UIEffects
     [RequireComponent(typeof(Graphic))]
     [DisallowMultipleComponent]
     [AddComponentMenu("UI/UIEffects/UIEffect", 1)]
-    public class UIEffect : BaseMaterialEffect, IMaterialModifier
+    public class UIEffect : BaseMaterialEffect
     {
-        private const uint k_ShaderId = 2 << 3;
-        private static readonly ParameterTexture s_ParamTex = new ParameterTexture(4, 1024, "_ParamTex");
+        static readonly ParameterTexture s_ParamTex = new(4, 128, "_ParamTex");
 
         [Tooltip("Color effect factor between 0(no effect) and 1(complete effect).")] [SerializeField] [Range(0, 1)]
         float m_ColorFactor = 1;
 
         [Tooltip("Color effect mode")] [SerializeField]
-        ColorMode m_ColorMode = ColorMode.Multiply;
+        ColorMode m_ColorMode = ColorMode.Fill;
 
         /// <summary>
         /// Color effect factor between 0(no effect) and 1(complete effect).
         /// </summary>
         public float colorFactor
         {
-            get { return m_ColorFactor; }
+            get => m_ColorFactor;
             set
             {
                 value = Mathf.Clamp(value, 0, 1);
@@ -41,7 +40,7 @@ namespace Coffee.UIEffects
         /// </summary>
         public ColorMode colorMode
         {
-            get { return m_ColorMode; }
+            get => m_ColorMode;
             set
             {
                 if (m_ColorMode == value) return;
@@ -53,31 +52,26 @@ namespace Coffee.UIEffects
         /// <summary>
         /// Gets the parameter texture.
         /// </summary>
-        public override ParameterTexture paramTex
+        public override ParameterTexture paramTex => s_ParamTex;
+
+        protected override ulong GetMaterialHash(Material baseMaterial)
         {
-            get { return s_ParamTex; }
+            return MaterialCache.GetMaterialHash(baseMaterial, (int) m_ColorMode);
         }
 
-        public override Hash128 GetMaterialHash(Material material)
+        protected override Material CreateMaterial(Material baseMaterial)
         {
-            if (!isActiveAndEnabled || !material || !material.shader)
-                return k_InvalidHash;
+            var newShader = ShaderRepo.GetEffect(baseMaterial.shader.name);
+            if (newShader is null) return null;
 
-            var shaderVariantId = (uint) ((int) m_ColorMode << 9);
-            return new Hash128(
-                (uint) material.GetInstanceID(),
-                k_ShaderId + shaderVariantId,
-                0,
-                0
-            );
-        }
-
-        public override void ModifyMaterial(Material newMaterial, Graphic graphic)
-        {
-            newMaterial.shader = Shader.Find(string.Format("Hidden/{0} (UIEffect)", newMaterial.shader.name));
-            SetShaderVariants(newMaterial, m_ColorMode);
-
-            paramTex.RegisterMaterial(newMaterial);
+            var material = new Material(baseMaterial)
+            {
+                shader = newShader,
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            material.EnableKeyword(colorMode.GetKeyword());
+            paramTex.RegisterToMaterial(material);
+            return material;
         }
 
         /// <summary>

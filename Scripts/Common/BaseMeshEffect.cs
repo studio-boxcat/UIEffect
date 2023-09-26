@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -13,33 +14,18 @@ namespace Coffee.UIEffects
     [ExecuteInEditMode]
     public abstract class BaseMeshEffect : UIBehaviour, IMeshModifier
     {
-        RectTransform _rectTransform;
-        Graphic _graphic;
-        GraphicConnector _connector;
+        [NonSerialized] RectTransform _rectTransform;
+        [NonSerialized] Graphic _graphic;
 
         /// <summary>
         /// The Graphic attached to this GameObject.
         /// </summary>
-        protected GraphicConnector connector
-        {
-            get { return _connector ?? (_connector = GraphicConnector.FindConnector(graphic)); }
-        }
-
-        /// <summary>
-        /// The Graphic attached to this GameObject.
-        /// </summary>
-        public Graphic graphic
-        {
-            get { return _graphic ? _graphic : _graphic = GetComponent<Graphic>(); }
-        }
+        public Graphic graphic => _graphic ??= GetComponent<Graphic>();
 
         /// <summary>
         /// The RectTransform attached to this GameObject.
         /// </summary>
-        protected RectTransform rectTransform
-        {
-            get { return _rectTransform ? _rectTransform : _rectTransform = GetComponent<RectTransform>(); }
-        }
+        protected RectTransform rectTransform => _rectTransform ??= (RectTransform) transform;
 
         /// <summary>
         /// Call used to modify mesh. (legacy)
@@ -67,48 +53,8 @@ namespace Coffee.UIEffects
         /// </summary>
         protected virtual void SetVerticesDirty()
         {
-            connector.SetVerticesDirty(graphic);
-
-// #if TMP_PRESENT
-//             if (textMeshPro)
-//             {
-//                 foreach (var info in textMeshPro.textInfo.meshInfo)
-//                 {
-//                     var mesh = info.mesh;
-//                     if (mesh)
-//                     {
-//                         mesh.Clear();
-//                         mesh.vertices = info.vertices;
-//                         mesh.uv = info.uvs0;
-//                         mesh.uv2 = info.uvs2;
-//                         mesh.colors32 = info.colors32;
-//                         mesh.normals = info.normals;
-//                         mesh.tangents = info.tangents;
-//                         mesh.triangles = info.triangles;
-//                     }
-//                 }
-//
-//                 if (canvasRenderer)
-//                 {
-//                     canvasRenderer.SetMesh(textMeshPro.mesh);
-//
-//                     GetComponentsInChildren(false, s_SubMeshUIs);
-//                     foreach (var sm in s_SubMeshUIs)
-//                     {
-//                         sm.canvasRenderer.SetMesh(sm.mesh);
-//                     }
-//
-//                     s_SubMeshUIs.Clear();
-//                 }
-//
-//                 textMeshPro.havePropertiesChanged = true;
-//             }
-//             else
-// #endif
-//             if (graphic)
-//             {
-//                 graphic.SetVerticesDirty();
-//             }
+            if (graphic)
+                graphic.SetVerticesDirty();
         }
 
 
@@ -116,62 +62,11 @@ namespace Coffee.UIEffects
         // Protected Members.
         //################################
         /// <summary>
-        /// Should the effect modify the mesh directly for TMPro?
-        /// </summary>
-        // protected virtual bool isLegacyMeshModifier
-        // {
-        //     get { return false; }
-        // }
-//         protected virtual void Initialize()
-//         {
-//             if (_initialized) return;
-//
-//             _initialized = true;
-//             _graphic = _graphic ? _graphic : GetComponent<Graphic>();
-//
-//             _connector = GraphicConnector.FindConnector(_graphic);
-//
-//             // _canvasRenderer = _canvasRenderer ?? GetComponent<CanvasRenderer> ();
-//             _rectTransform = _rectTransform ? _rectTransform : GetComponent<RectTransform>();
-// // #if TMP_PRESENT
-// // 			_textMeshPro = _textMeshPro ?? GetComponent<TMP_Text> ();
-// // #endif
-//         }
-
-        /// <summary>
         /// This function is called when the object becomes enabled and active.
         /// </summary>
         protected virtual void OnEnable()
         {
-            connector.OnEnable(graphic);
             SetVerticesDirty();
-
-            // SetVerticesDirty();
-// #if TMP_PRESENT
-            // 			if (textMeshPro)
-            // 			{
-            // 				TMPro_EventManager.TEXT_CHANGED_EVENT.Add (OnTextChanged);
-            // 			}
-            // #endif
-            //
-            // #if UNITY_EDITOR && TMP_PRESENT
-            // 			if (graphic && textMeshPro)
-            // 			{
-            // 				GraphicRebuildTracker.TrackGraphic (graphic);
-            // 			}
-            // #endif
-            //
-            // #if UNITY_5_6_OR_NEWER
-            // 			if (graphic)
-            // 			{
-            // 				AdditionalCanvasShaderChannels channels = requiredChannels;
-            // 				var canvas = graphic.canvas;
-            // 				if (canvas && (canvas.additionalShaderChannels & channels) != channels)
-            // 				{
-            // 					Debug.LogWarningFormat (this, "Enable {1} of Canvas.additionalShaderChannels to use {0}.", GetType ().Name, channels);
-            // 				}
-            // 			}
-            // #endif
         }
 
         /// <summary>
@@ -179,7 +74,6 @@ namespace Coffee.UIEffects
         /// </summary>
         protected virtual void OnDisable()
         {
-            connector.OnDisable(graphic);
             SetVerticesDirty();
         }
 

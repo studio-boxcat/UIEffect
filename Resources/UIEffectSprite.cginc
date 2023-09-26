@@ -12,7 +12,6 @@ struct appdata_t
 	float4 vertex   : POSITION;
 	float4 color    : COLOR;
 	float2 texcoord : TEXCOORD0;
-	UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 struct v2f
@@ -26,14 +25,11 @@ struct v2f
 #else
 	half	eParam	: TEXCOORD2;
 #endif
-	UNITY_VERTEX_OUTPUT_STEREO
 };
 
 v2f vert(appdata_t IN)
 {
 	v2f OUT;
-	UNITY_SETUP_INSTANCE_ID(IN);
-	UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 	OUT.worldPosition = IN.vertex;
 	OUT.vertex = UnityObjectToClipPos(OUT.worldPosition);
 

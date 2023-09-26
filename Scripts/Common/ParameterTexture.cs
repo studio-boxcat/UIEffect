@@ -1,16 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 using System;
 
 namespace Coffee.UIEffects
 {
-    public interface IParameterTexture
+    public interface IParameterInstance
     {
-        int parameterIndex { get; set; }
-
-        ParameterTexture paramTex { get; }
+        int index { get; set; }
     }
 
     /// <summary>
@@ -48,12 +44,12 @@ namespace Coffee.UIEffects
         /// Register the specified target.
         /// </summary>
         /// <param name="target">Target.</param>
-        public void Register(IParameterTexture target)
+        public void Register(IParameterInstance target)
         {
             Initialize();
-            if (target.parameterIndex <= 0 && 0 < _stack.Count)
+            if (target.index <= 0 && 0 < _stack.Count)
             {
-                target.parameterIndex = _stack.Pop();
+                target.index = _stack.Pop();
 //				Debug.LogFormat("<color=green>@@@ Register {0} : {1}</color>", target, target.parameterIndex);
             }
         }
@@ -62,13 +58,13 @@ namespace Coffee.UIEffects
         /// Unregister the specified target.
         /// </summary>
         /// <param name="target">Target.</param>
-        public void Unregister(IParameterTexture target)
+        public void Unregister(IParameterInstance target)
         {
-            if (0 < target.parameterIndex)
+            if (0 < target.index)
             {
 //				Debug.LogFormat("<color=red>@@@ Unregister {0} : {1}</color>", target, target.parameterIndex);
-                _stack.Push(target.parameterIndex);
-                target.parameterIndex = 0;
+                _stack.Push(target.index);
+                target.index = 0;
             }
         }
 
@@ -78,10 +74,10 @@ namespace Coffee.UIEffects
         /// <param name="target">Target.</param>
         /// <param name="channelId">Channel identifier.</param>
         /// <param name="value">Value.</param>
-        public void SetData(IParameterTexture target, int channelId, byte value)
+        public void SetData(IParameterInstance target, int channelId, byte value)
         {
-            int index = (target.parameterIndex - 1) * _channels + channelId;
-            if (0 < target.parameterIndex && _data[index] != value)
+            int index = (target.index - 1) * _channels + channelId;
+            if (0 < target.index && _data[index] != value)
             {
                 _data[index] = value;
                 _needUpload = true;
@@ -94,7 +90,7 @@ namespace Coffee.UIEffects
         /// <param name="target">Target.</param>
         /// <param name="channelId">Channel identifier.</param>
         /// <param name="value">Value.</param>
-        public void SetData(IParameterTexture target, int channelId, float value)
+        public void SetData(IParameterInstance target, int channelId, float value)
         {
             SetData(target, channelId, (byte) (Mathf.Clamp01(value) * 255));
         }
@@ -103,7 +99,7 @@ namespace Coffee.UIEffects
         /// Registers the material.
         /// </summary>
         /// <param name="mat">Mat.</param>
-        public void RegisterMaterial(Material mat)
+        public void RegisterToMaterial(Material mat)
         {
             if (_propertyId == 0)
             {
@@ -121,9 +117,9 @@ namespace Coffee.UIEffects
         /// </summary>
         /// <returns>The normalized index.</returns>
         /// <param name="target">Target.</param>
-        public float GetNormalizedIndex(IParameterTexture target)
+        public float GetNormalizedIndex(IParameterInstance target)
         {
-            return ((float) target.parameterIndex - 0.5f) / _instanceLimit;
+            return (target.index - 0.5f) / _instanceLimit;
         }
 
 

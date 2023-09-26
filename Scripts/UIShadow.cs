@@ -9,10 +9,10 @@ namespace Coffee.UIEffects
     /// </summary>
     [RequireComponent(typeof(Graphic))]
     [AddComponentMenu("UI/UIEffects/UIShadow", 100)]
-    public class UIShadow : BaseMeshEffect, IParameterTexture
+    public class UIShadow : BaseMeshEffect, IParameterInstance
     {
-        static readonly List<UIShadow> tmpShadows = new List<UIShadow>();
-        static readonly List<UIVertex> s_Verts = new List<UIVertex>(4096);
+        static readonly List<UIShadow> tmpShadows = new();
+        static readonly List<UIVertex> s_Verts = new(4096);
 
         int _graphicVertexCount;
         UIEffect _uiEffect;
@@ -88,7 +88,7 @@ namespace Coffee.UIEffects
         /// <summary>
         /// Gets or sets the parameter index.
         /// </summary>
-        public int parameterIndex { get; set; }
+        int IParameterInstance.index { get; set; }
 
         /// <summary>
         /// Gets the parameter texture.

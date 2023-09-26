@@ -1,77 +1,68 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System;
 using UnityEngine;
-using System.Text;
-using UnityEngine.UI;
 
 namespace Coffee.UIEffects
 {
     public class MaterialCache
     {
-        static Dictionary<Hash128, MaterialEntry> materialMap = new Dictionary<Hash128, MaterialEntry>();
+        static Dictionary<ulong, MaterialEntry> materialMap = new();
 
-        private class MaterialEntry
+        class MaterialEntry
         {
-            public Material material;
+            public readonly Material material;
             public int referenceCount;
 
-            public void Release()
+            public MaterialEntry(Material material)
             {
-                if (material)
-                {
-                    UnityEngine.Object.DestroyImmediate(material, false);
-                }
-
-                material = null;
+                this.material = material;
             }
         }
 
 #if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]
-        private static void ClearCache()
+        static void ClearCache()
         {
             foreach (var entry in materialMap.Values)
-            {
-                entry.Release();
-            }
-
+                Object.DestroyImmediate(entry.material, false);
             materialMap.Clear();
         }
 #endif
 
-        public static Material Register(Material baseMaterial, Hash128 hash,
-            System.Action<Material, Graphic> onModifyMaterial, Graphic graphic)
+        public static ulong GetMaterialHash(Material baseMaterial, int variant)
         {
-            if (!hash.isValid) return null;
-
-            MaterialEntry entry;
-            if (!materialMap.TryGetValue(hash, out entry))
-            {
-                entry = new MaterialEntry()
-                {
-                    material = new Material(baseMaterial)
-                    {
-                        hideFlags = HideFlags.HideAndDontSave,
-                    },
-                };
-
-                onModifyMaterial(entry.material, graphic);
-                materialMap.Add(hash, entry);
-            }
-
-            entry.referenceCount++;
-            return entry.material;
+            return (ulong) baseMaterial.GetInstanceID() << 32 | (uint) variant;
         }
 
-        public static void Unregister(Hash128 hash)
+        public static bool TryRent(ulong hash, out Material material)
         {
-            MaterialEntry entry;
-            if (!hash.isValid || !materialMap.TryGetValue(hash, out entry)) return;
-            if (--entry.referenceCount > 0) return;
+            if (materialMap.TryGetValue(hash, out var materialEntry))
+            {
+                materialEntry.referenceCount++;
+                material = materialEntry.material;
+                return true;
+            }
+            else
+            {
+                material = null;
+                return false;
+            }
+        }
 
-            entry.Release();
-            materialMap.Remove(hash);
+        public static void RegisterNewlyRented(ulong hash, Material material)
+        {
+            materialMap.Add(hash, new MaterialEntry(material) {referenceCount = 1});
+        }
+
+        public static void Return(ulong hash)
+        {
+            var materialEntry = materialMap[hash];
+            materialEntry.referenceCount--;
+
+            if (materialEntry.referenceCount == 0)
+            {
+                Object.DestroyImmediate(materialEntry.material, false);
+                materialMap.Remove(hash);
+            }
         }
     }
 }

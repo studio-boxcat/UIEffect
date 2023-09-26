@@ -1,4 +1,4 @@
-Shader "Hidden/UI/PremultipliedAlpha (UIShiny)"
+Shader "UIEffect/UIShiny-PremultAlpha"
 {
 	Properties
 	{
@@ -54,10 +54,7 @@ Shader "Hidden/UI/PremultipliedAlpha (UIShiny)"
 			#pragma fragment frag
 			#pragma target 2.0
 
-			#pragma multi_compile __ UNITY_UI_ALPHACLIP
-
-			#include "UnityCG.cginc"
-			#include "UnityUI.cginc"
+			#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 
 			#define UI_SHINY 1
 			#include "UIEffect.cginc"
@@ -65,13 +62,6 @@ Shader "Hidden/UI/PremultipliedAlpha (UIShiny)"
 
 			fixed4 frag(v2f IN) : SV_Target
 			{
-                //Round up the alpha color coming from the interpolator (to 1.0/256.0 steps)
-                //The incoming alpha could have numerical instability, which makes it very sensible to
-                //HDR color transparency blend, when it blends with the world's texture.
-                const half alphaPrecision = half(0xff);
-                const half invAlphaPrecision = half(1.0/alphaPrecision);
-                IN.color.a = round(IN.color.a * alphaPrecision)*invAlphaPrecision;
-
                 half4 color = IN.color * (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd);
 
                 #ifdef UNITY_UI_CLIP_RECT
