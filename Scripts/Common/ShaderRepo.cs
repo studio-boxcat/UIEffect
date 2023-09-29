@@ -6,7 +6,6 @@ namespace Coffee.UIEffects
     public static class ShaderRepo
     {
         [NonSerialized] static Shader _effect;
-        [NonSerialized] static Shader _effect_PremultAlpha;
         [NonSerialized] static Shader _shiny;
         [NonSerialized] static Shader _shiny_PremultAlpha;
 
@@ -16,7 +15,6 @@ namespace Coffee.UIEffects
             return baseShaderName switch
             {
                 "UI/Default" => _effect ??= Resources.Load<Shader>("UIEffect"),
-                "UI/PremultipliedAlpha" => _effect_PremultAlpha ??= Resources.Load<Shader>("UIEffect-PremultAlpha"),
                 _ => null
             };
         }
