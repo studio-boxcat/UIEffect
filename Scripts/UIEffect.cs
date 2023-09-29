@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Sirenix.OdinInspector;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Coffee.UIEffects
@@ -11,12 +12,16 @@ namespace Coffee.UIEffects
     [AddComponentMenu("UI/UIEffects/UIEffect", 1)]
     public class UIEffect : BaseMaterialEffect
     {
-        static readonly ParameterTexture s_ParamTex = new(4, 128, "_ParamTex");
+        static readonly ParameterTexture s_ParamTex = new(4, 64, "_ParamTex");
 
-        [Tooltip("Color effect factor between 0(no effect) and 1(complete effect).")] [SerializeField] [Range(0, 1)]
+        [Tooltip("Color effect factor between 0(no effect) and 1(complete effect).")]
+        [SerializeField] [Range(0, 1)]
+        [OnValueChanged(nameof(SetEffectParamsDirty))]
         float m_ColorFactor = 1;
 
-        [Tooltip("Color effect mode")] [SerializeField]
+        [Tooltip("Color effect mode")]
+        [SerializeField]
+        [OnValueChanged(nameof(SetMaterialDirty))]
         ColorMode m_ColorMode = ColorMode.Fill;
 
         /// <summary>
@@ -68,7 +73,11 @@ namespace Coffee.UIEffects
                 shader = newShader,
                 hideFlags = HideFlags.HideAndDontSave
             };
-            material.EnableKeyword(colorMode.GetKeyword());
+
+            // When no keyword is enabled, consider it as ColorMode.Fill.
+            if (colorMode == ColorMode.Add)
+                material.EnableKeyword("ADD");
+
             paramTex.RegisterToMaterial(material);
             return material;
         }
@@ -79,7 +88,7 @@ namespace Coffee.UIEffects
         public override void ModifyMesh(MeshBuilder mb)
         {
             var uvs = mb.UVs.Edit();
-            int count = mb.UVs.Count;
+            var count = mb.UVs.Count;
             var normalizedIndex = paramTex.GetNormalizedIndex(this);
 
             for (var i = 0; i < count; i++)

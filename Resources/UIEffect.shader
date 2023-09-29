@@ -59,7 +59,7 @@
 			#endif
 
 			#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
-			#pragma multi_compile_local ADD FILL
+			#pragma multi_compile_local _ ADD
 
 		#include "UnityUI.cginc"
 

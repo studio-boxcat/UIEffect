@@ -20,17 +20,13 @@ half2 UnpackToVec2(float value)
 // Apply color effect.
 fixed4 ApplyColorEffect(half4 color, half4 factor)
 {
-	#if FILL
-	color.rgb = lerp(color.rgb, factor.rgb, factor.a);
-
-	#elif ADD
+	#if ADD
 	color.rgb += factor.rgb * factor.a;
-
-	#else
-	color.rgb = lerp(color.rgb, color.rgb * factor.rgb, factor.a);
-	#endif
-
 	return color;
+	#else
+	color.rgb = lerp(color.rgb, factor.rgb, factor.a);
+	return color;
+	#endif
 }
 
 // Apply shiny effect.
