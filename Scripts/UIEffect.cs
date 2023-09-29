@@ -6,7 +6,6 @@ namespace Coffee.UIEffects
     /// <summary>
     /// UIEffect.
     /// </summary>
-    [ExecuteInEditMode]
     [RequireComponent(typeof(Graphic))]
     [DisallowMultipleComponent]
     [AddComponentMenu("UI/UIEffects/UIEffect", 1)]
@@ -77,55 +76,18 @@ namespace Coffee.UIEffects
         /// <summary>
         /// Modifies the mesh.
         /// </summary>
-        public override void ModifyMesh(VertexHelper vh, Graphic graphic)
+        public override void ModifyMesh(MeshBuilder mb)
         {
-            if (!isActiveAndEnabled)
-            {
-                return;
-            }
-
+            var uvs = mb.UVs.Edit();
+            int count = mb.UVs.Count;
             var normalizedIndex = paramTex.GetNormalizedIndex(this);
 
+            for (var i = 0; i < count; i++)
             {
-                int count = vh.currentVertCount;
-                UIVertex vt = default(UIVertex);
-                for (int i = 0; i < count; i++)
-                {
-                    vh.PopulateUIVertex(ref vt, i);
-                    Vector2 uv0 = vt.uv0;
-                    vt.uv0 = new Vector2(
-                        Packer.ToFloat((uv0.x + 0.5f) / 2f, (uv0.y + 0.5f) / 2f),
-                        normalizedIndex
-                    );
-                    vh.SetUIVertex(vt, i);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Modifies the mesh.
-        /// </summary>
-        public override void ModifyMesh(Mesh mesh)
-        {
-            if (!isActiveAndEnabled)
-            {
-                return;
-            }
-
-            var normalizedIndex = paramTex.GetNormalizedIndex(this);
-
-            {
-                var count = mesh.vertexCount;
-                var uvs = mesh.uv;
-                for (var i = 0; i < count; i++)
-                {
-                    var uv = uvs[i];
-                    uvs[i] = new Vector2(
-                        Packer.ToFloat((uv.x + 0.5f) / 2f, (uv.y + 0.5f) / 2f),
-                        normalizedIndex
-                    );
-                }
-                mesh.SetUVs(0, uvs);
+                var uv = uvs[i];
+                uvs[i] = new Vector2(
+                    Packer.ToFloat((uv.x + 0.5f) / 2f, (uv.y + 0.5f) / 2f),
+                    normalizedIndex);
             }
         }
 

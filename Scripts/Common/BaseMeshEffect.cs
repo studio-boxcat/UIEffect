@@ -11,7 +11,7 @@ namespace Coffee.UIEffects
     /// </summary>
     [RequireComponent(typeof(Graphic))]
     [RequireComponent(typeof(RectTransform))]
-    [ExecuteInEditMode]
+    [ExecuteAlways]
     public abstract class BaseMeshEffect : UIBehaviour, IMeshModifier
     {
         [NonSerialized] RectTransform _rectTransform;
@@ -28,25 +28,10 @@ namespace Coffee.UIEffects
         protected RectTransform rectTransform => _rectTransform ??= (RectTransform) transform;
 
         /// <summary>
-        /// Call used to modify mesh. (legacy)
-        /// </summary>
-        /// <param name="mesh">Mesh.</param>
-        public virtual void ModifyMesh(Mesh mesh)
-        {
-        }
-
-        /// <summary>
         /// Call used to modify mesh.
         /// </summary>
-        /// <param name="vh">VertexHelper.</param>
-        public virtual void ModifyMesh(VertexHelper vh)
-        {
-            ModifyMesh(vh, graphic);
-        }
-
-        public virtual void ModifyMesh(VertexHelper vh, Graphic graphic)
-        {
-        }
+        /// <param name="mb">VertexHelper.</param>
+        public abstract void ModifyMesh(MeshBuilder mb);
 
         /// <summary>
         /// Mark the vertices as dirty.

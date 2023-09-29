@@ -76,7 +76,7 @@ namespace Coffee.UIEffects
         /// <summary>
         /// Gets effect for area.
         /// </summary>
-        public static Rect GetEffectArea(this EffectArea area, VertexHelper vh, Rect rectangle, float aspectRatio = -1)
+        public static Rect GetEffectArea(this EffectArea area, MeshBuilder mb, Rect rectangle, float aspectRatio = -1)
         {
             Rect rect = default(Rect);
             switch (area)
@@ -88,24 +88,7 @@ namespace Coffee.UIEffects
                     rect = rectForCharacter;
                     break;
                 case EffectArea.Fit:
-                    // Fit to contents.
-                    UIVertex vertex = default(UIVertex);
-                    float xMin = float.MaxValue;
-                    float yMin = float.MaxValue;
-                    float xMax = float.MinValue;
-                    float yMax = float.MinValue;
-                    for (int i = 0; i < vh.currentVertCount; i++)
-                    {
-                        vh.PopulateUIVertex(ref vertex, i);
-                        float x = vertex.position.x;
-                        float y = vertex.position.y;
-                        xMin = Mathf.Min(xMin, x);
-                        yMin = Mathf.Min(yMin, y);
-                        xMax = Mathf.Max(xMax, x);
-                        yMax = Mathf.Max(yMax, y);
-                    }
-
-                    rect.Set(xMin, yMin, xMax - xMin, yMax - yMin);
+                    rect = mb.Poses.CalculateBoundingRect();
                     break;
                 default:
                     rect = rectangle;

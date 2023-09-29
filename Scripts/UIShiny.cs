@@ -194,13 +194,10 @@ namespace Coffee.UIEffects
         /// <summary>
         /// Modifies the mesh.
         /// </summary>
-        public override void ModifyMesh(Mesh mesh)
+        public override void ModifyMesh(MeshBuilder mb)
         {
-            if (!isActiveAndEnabled)
-                return;
-
             var normalizedIndex = paramTex.GetNormalizedIndex(this);
-            var rect = m_EffectArea.GetEffectArea(mesh, rectTransform.rect);
+            var rect = m_EffectArea.GetEffectArea(mb, rectTransform.rect);
 
             // rotation.
             var rad = m_Rotation * Mathf.Deg2Rad;
@@ -209,57 +206,18 @@ namespace Coffee.UIEffects
             dir = dir.normalized;
 
             // Calculate vertex position.
-            var vertices = mesh.vertices;
-            var uvs = mesh.uv;
+            var poses = mb.Poses;
+            var uvs = mb.UVs.Edit();
+            var vertCount = poses.Count;
             var localMatrix = new Matrix2x3(rect, dir.x, dir.y); // Get local matrix.
-            for (int i = 0; i < vertices.Length; i++)
+            for (int i = 0; i < vertCount; i++)
             {
-                var vertex = vertices[i];
-                Vector2 normalizedPos;
-                normalizedPos = localMatrix * vertex;
-
+                var normalizedPos = localMatrix * poses[i];
                 var uv = uvs[i];
                 uvs[i] = new Vector2(
                     Packer.ToFloat(uv.x, uv.y),
                     Packer.ToFloat(normalizedPos.y, normalizedIndex)
                 );
-            }
-
-            mesh.SetUVs(0, uvs);
-        }
-
-        /// <summary>
-        /// Modifies the mesh.
-        /// </summary>
-        public override void ModifyMesh(VertexHelper vh, Graphic graphic)
-        {
-            if (!isActiveAndEnabled)
-                return;
-
-            var normalizedIndex = paramTex.GetNormalizedIndex(this);
-            var rect = m_EffectArea.GetEffectArea(vh, rectTransform.rect);
-
-            // rotation.
-            var rad = m_Rotation * Mathf.Deg2Rad;
-            var dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
-            dir.x *= rect.height / rect.width;
-            dir = dir.normalized;
-
-            // Calculate vertex position.
-            var vertex = default(UIVertex);
-            var localMatrix = new Matrix2x3(rect, dir.x, dir.y); // Get local matrix.
-            for (int i = 0; i < vh.currentVertCount; i++)
-            {
-                vh.PopulateUIVertex(ref vertex, i);
-                Vector2 normalizedPos;
-                normalizedPos = localMatrix * vertex.position;
-
-                vertex.uv0 = new Vector2(
-                    Packer.ToFloat(vertex.uv0.x, vertex.uv0.y),
-                    Packer.ToFloat(normalizedPos.y, normalizedIndex)
-                );
-
-                vh.SetUIVertex(vertex, i);
             }
         }
 

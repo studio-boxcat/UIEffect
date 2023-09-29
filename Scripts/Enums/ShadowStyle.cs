@@ -5,8 +5,7 @@
     /// </summary>
     public enum ShadowStyle
     {
-        None = 0,
-        Shadow,
+        Shadow = 1,
         Outline,
         Outline8,
         Shadow3,
