@@ -215,8 +215,8 @@ namespace Coffee.UIEffects
                 var normalizedPos = localMatrix * poses[i];
                 var uv = uvs[i];
                 uvs[i] = new Vector2(
-                    Packer.ToFloat(uv.x, uv.y),
-                    Packer.ToFloat(normalizedPos.y, normalizedIndex)
+                    Packer.Pack(uv.x, uv.y),
+                    Packer.Pack(normalizedPos.y, normalizedIndex)
                 );
             }
         }

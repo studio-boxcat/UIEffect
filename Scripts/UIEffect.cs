@@ -95,7 +95,7 @@ namespace Coffee.UIEffects
             {
                 var uv = uvs[i];
                 uvs[i] = new Vector2(
-                    Packer.ToFloat((uv.x + 0.5f) / 2f, (uv.y + 0.5f) / 2f),
+                    Packer.Pack((uv.x + 0.5f) / 2f, (uv.y + 0.5f) / 2f),
                     normalizedIndex);
             }
         }
