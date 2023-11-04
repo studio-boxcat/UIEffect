@@ -88,7 +88,7 @@ namespace Coffee.UIEffects
         public override void ModifyMesh(MeshBuilder mb)
         {
             var uvs = mb.UVs.Edit();
-            var count = mb.UVs.Count;
+            var count = uvs.Length;
             var normalizedIndex = paramTex.GetNormalizedIndex(this);
 
             for (var i = 0; i < count; i++)
