@@ -24,7 +24,7 @@ namespace Coffee.UIEffects
             return baseShaderName switch
             {
                 "UI/Default" => _shiny ??= Resources.Load<Shader>("UIShiny"),
-                "UI/PremultipliedAlpha" => _shiny_PremultAlpha ??= Resources.Load<Shader>("UIShiny-PremultAlpha"),
+                "UI/PremultAlpha" => _shiny_PremultAlpha ??= Resources.Load<Shader>("UIShiny-PremultAlpha"),
                 _ => null
             };
         }
