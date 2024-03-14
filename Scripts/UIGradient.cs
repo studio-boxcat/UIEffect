@@ -112,10 +112,10 @@ namespace Coffee.UIEffects
             // Gradient space.
             var rect = graphic.rectTransform.rect;
 
-            // Calculate vertex color.
-            var localMatrix = m_Direction == Direction.Horizontal // Get local matrix.
-                ? new Matrix2x3(rect, 0, -1)
-                : new Matrix2x3(rect, 1, 0);
+            // Calculate min max range.
+            var (min, max) = m_Direction == Direction.Horizontal
+                ? (rect.xMin, rect.xMax)
+                : (rect.yMin, rect.yMax);
 
             var vertCount = mb.Poses.Count;
             var poses = mb.Poses;
@@ -123,11 +123,12 @@ namespace Coffee.UIEffects
 
             for (var i = 0; i < vertCount; i++)
             {
-                // Normalize vertex position by local matrix.
-                var normalizedPos = localMatrix * poses[i];
+                // Normalize vertex position.
+                var pos = m_Direction == Direction.Horizontal ? poses[i].x : poses[i].y;
+                var normalizedPos = Mathf.InverseLerp(min, max, pos) + m_Offset1;
 
                 // Interpolate vertex color.
-                var color = Color.LerpUnclamped(m_Color2, m_Color1, normalizedPos.y);
+                var color = Color.LerpUnclamped(m_Color2, m_Color1, normalizedPos);
 
                 // Correct color.
                 colors[i] *= m_ColorSpace switch
