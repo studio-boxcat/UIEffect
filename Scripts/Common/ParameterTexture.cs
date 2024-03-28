@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using System;
+using UnityEngine.Assertions;
 
 namespace Coffee.UIEffects
 {
@@ -12,7 +12,6 @@ namespace Coffee.UIEffects
     /// <summary>
     /// Parameter texture.
     /// </summary>
-    [System.Serializable]
     public class ParameterTexture
     {
         //################################
@@ -24,19 +23,15 @@ namespace Coffee.UIEffects
         /// </summary>
         /// <param name="channels">Channels.</param>
         /// <param name="instanceLimit">Instance limit.</param>
-        /// <param name="propertyName">Property name.</param>
-        public ParameterTexture(int channels, int instanceLimit, string propertyName)
+        public ParameterTexture(int channels, int instanceLimit)
         {
-            _propertyName = propertyName;
             _channels = ((channels - 1) / 4 + 1) * 4;
             _instanceLimit = ((instanceLimit - 1) / 2 + 1) * 2;
             _data = new byte[_channels * _instanceLimit];
 
-            _stack = new Stack<int>(_instanceLimit);
-            for (int i = 1; i < _instanceLimit + 1; i++)
-            {
-                _stack.Push(i);
-            }
+            _availableIds = new Stack<int>(_instanceLimit);
+            for (var i = 1; i < _instanceLimit + 1; i++)
+                _availableIds.Push(i);
         }
 
 
@@ -46,12 +41,15 @@ namespace Coffee.UIEffects
         /// <param name="target">Target.</param>
         public void Register(IParameterInstance target)
         {
-            Initialize();
-            if (target.index <= 0 && 0 < _stack.Count)
+            Assert.AreEqual(0, target.index, "target is already registered: " + target);
+
+            if (_availableIds.Count is 0)
             {
-                target.index = _stack.Pop();
-//				Debug.LogFormat("<color=green>@@@ Register {0} : {1}</color>", target, target.parameterIndex);
+                L.E("ParameterTexture: Instance limit exceeded.");
+                return;
             }
+
+            target.index = _availableIds.Pop();
         }
 
         /// <summary>
@@ -60,28 +58,15 @@ namespace Coffee.UIEffects
         /// <param name="target">Target.</param>
         public void Unregister(IParameterInstance target)
         {
-            if (0 < target.index)
+            var index = target.index;
+            if (index is 0)
             {
-//				Debug.LogFormat("<color=red>@@@ Unregister {0} : {1}</color>", target, target.parameterIndex);
-                _stack.Push(target.index);
-                target.index = 0;
+                L.W("ParameterTexture: Instance is not registered.");
+                return;
             }
-        }
 
-        /// <summary>
-        /// Sets the data.
-        /// </summary>
-        /// <param name="target">Target.</param>
-        /// <param name="channelId">Channel identifier.</param>
-        /// <param name="value">Value.</param>
-        public void SetData(IParameterInstance target, int channelId, byte value)
-        {
-            int index = (target.index - 1) * _channels + channelId;
-            if (0 < target.index && _data[index] != value)
-            {
-                _data[index] = value;
-                _needUpload = true;
-            }
+            _availableIds.Push(index);
+            target.index = 0;
         }
 
         /// <summary>
@@ -92,24 +77,28 @@ namespace Coffee.UIEffects
         /// <param name="value">Value.</param>
         public void SetData(IParameterInstance target, int channelId, float value)
         {
-            SetData(target, channelId, (byte) (Mathf.Clamp01(value) * 255));
+            var index = target.index;
+            if (index is 0)
+            {
+                L.W("ParameterTexture: Instance is not registered.");
+                return;
+            }
+
+            var dataIndex = (index - 1) * _channels + channelId;
+            var valueByte = (byte) (Mathf.Clamp01(value) * 255);
+            if (_data[dataIndex] == valueByte) return;
+            _data[dataIndex] = valueByte;
+            _needUpload = true;
         }
 
         /// <summary>
         /// Registers the material.
         /// </summary>
-        /// <param name="mat">Mat.</param>
-        public void RegisterToMaterial(Material mat)
+        public void SetTextureForMaterial(Material mat, int propertyId)
         {
-            if (_propertyId == 0)
-            {
-                _propertyId = Shader.PropertyToID(_propertyName);
-            }
-
-            if (mat)
-            {
-                mat.SetTexture(_propertyId, _texture);
-            }
+            Assert.IsNotNull(mat, "Material is null.");
+            Assert.IsNotNull(_texture, "Not initialized.");
+            mat.SetTexture(propertyId, _texture);
         }
 
         /// <summary>
@@ -129,58 +118,37 @@ namespace Coffee.UIEffects
 
         Texture2D _texture;
         bool _needUpload;
-        int _propertyId;
-        readonly string _propertyName;
         readonly int _channels;
         readonly int _instanceLimit;
         readonly byte[] _data;
-        readonly Stack<int> _stack;
-        static List<Action> updates;
+        readonly Stack<int> _availableIds;
 
         /// <summary>
         /// Initialize this instance.
         /// </summary>
-        void Initialize()
+        public void Initialize()
         {
-#if UNITY_EDITOR
-            if (!UnityEditor.EditorApplication.isPlaying && UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
-            {
+            if (_texture is not null)
                 return;
-            }
-#endif
-            if (updates == null)
-            {
-                updates = new List<Action>();
-                Canvas.willRenderCanvases += () =>
-                {
-                    var count = updates.Count;
-                    for (int i = 0; i < count; i++)
-                    {
-                        updates[i].Invoke();
-                    }
-                };
-            }
 
-            if (!_texture)
+            var isLinear = QualitySettings.activeColorSpace is ColorSpace.Linear;
+            _texture = new Texture2D(_channels / 4, _instanceLimit, TextureFormat.RGBA32, false, isLinear)
             {
-                bool isLinear = QualitySettings.activeColorSpace == ColorSpace.Linear;
-                _texture = new Texture2D(_channels / 4, _instanceLimit, TextureFormat.RGBA32, false, isLinear);
-                _texture.filterMode = FilterMode.Point;
-                _texture.wrapMode = TextureWrapMode.Clamp;
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.HideAndDontSave, // XXX: To prevent destroying the mesh after exiting play mode.
+            };
 
-                updates.Add(UpdateParameterTexture);
-                _needUpload = true;
-            }
+            _needUpload = true;
+            Canvas.willRenderCanvases += UpdateParameterTexture;
         }
 
         void UpdateParameterTexture()
         {
-            if (_needUpload && _texture)
-            {
-                _needUpload = false;
-                _texture.LoadRawTextureData(_data);
-                _texture.Apply(false, false);
-            }
+            if (_needUpload is false) return;
+            _needUpload = false;
+            _texture.LoadRawTextureData(_data);
+            _texture.Apply(false, false);
         }
     }
 }

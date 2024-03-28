@@ -10,8 +10,6 @@ namespace Coffee.UIEffects
     [AddComponentMenu("UI/UIEffects/UIShiny", 2)]
     public class UIShiny : BaseMaterialEffect
     {
-        private static readonly ParameterTexture s_ParamTex = new(8, 128, "_ParamTex");
-
         float _lastRotation;
         EffectArea _lastEffectArea;
 
@@ -144,15 +142,9 @@ namespace Coffee.UIEffects
         /// <summary>
         /// Gets the parameter texture.
         /// </summary>
-        public override ParameterTexture paramTex
-        {
-            get { return s_ParamTex; }
-        }
+        public override ParameterTexture paramTex => MaterialCatalog.ParamShiny;
 
-        public EffectPlayer effectPlayer
-        {
-            get { return m_Player ?? (m_Player = new EffectPlayer()); }
-        }
+        public EffectPlayer effectPlayer => m_Player ??= new EffectPlayer();
 
         /// <summary>
         /// This function is called when the object becomes enabled and active.
@@ -172,23 +164,9 @@ namespace Coffee.UIEffects
             effectPlayer.OnDisable();
         }
 
-        protected override ulong GetMaterialHash(Material baseMaterial)
+        protected override Material GetEffectMaterial(Material baseMaterial)
         {
-            return MaterialCache.GetMaterialHash(baseMaterial, 0);
-        }
-
-        protected override Material CreateMaterial(Material baseMaterial)
-        {
-            var newShader = ShaderRepo.GetShiny(baseMaterial.shader.name);
-            if (newShader is null) return null;
-
-            var material = new Material(baseMaterial)
-            {
-                shader = newShader,
-                hideFlags = HideFlags.HideAndDontSave
-            };
-            paramTex.RegisterToMaterial(material);
-            return material;
+            return MaterialCatalog.GetShiny(baseMaterial.shader.name);
         }
 
         /// <summary>

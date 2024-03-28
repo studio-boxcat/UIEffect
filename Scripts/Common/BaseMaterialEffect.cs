@@ -1,5 +1,5 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.UI;
 
 namespace Coffee.UIEffects
@@ -10,8 +10,6 @@ namespace Coffee.UIEffects
     [DisallowMultipleComponent]
     public abstract class BaseMaterialEffect : BaseMeshEffect, IParameterInstance, IMaterialModifier
     {
-        [NonSerialized] ulong _lastMaterialHash;
-
         /// <summary>
         /// Gets or sets the parameter index.
         /// </summary>
@@ -20,39 +18,22 @@ namespace Coffee.UIEffects
         /// <summary>
         /// Gets the parameter texture.
         /// </summary>
-        public virtual ParameterTexture paramTex => null;
+        public abstract ParameterTexture paramTex { get; }
 
         /// <summary>
         /// Mark the vertices as dirty.
         /// </summary>
-        public void SetMaterialDirty()
-        {
-            if (graphic)
-                graphic.SetMaterialDirty();
-        }
+        public void SetMaterialDirty() => graphic.SetMaterialDirty();
 
         public Material GetModifiedMaterial(Material baseMaterial)
         {
-            if (!isActiveAndEnabled) return baseMaterial;
-
-            var oldMaterialHash = _lastMaterialHash;
-
-            var newMaterialHash = _lastMaterialHash = GetMaterialHash(baseMaterial);
-            if (MaterialCache.TryRent(newMaterialHash, out var material) == false)
-            {
-                material = CreateMaterial(baseMaterial);
-                MaterialCache.RegisterNewlyRented(newMaterialHash, material);
-            }
-
-            if (oldMaterialHash != default)
-                MaterialCache.Return(oldMaterialHash);
-
-            return material;
+            if (enabled is false) return baseMaterial;
+            var effectMat = GetEffectMaterial(baseMaterial);
+            Assert.IsNotNull(effectMat.GetTexture("_ParamTex"), "Material must have a texture property '_ParamTex'.");
+            return effectMat;
         }
 
-        protected abstract ulong GetMaterialHash(Material baseMaterial);
-
-        protected abstract Material CreateMaterial(Material baseMaterial);
+        protected abstract Material GetEffectMaterial(Material baseMaterial);
 
 #if UNITY_EDITOR
         protected override void Reset()
@@ -94,12 +75,6 @@ namespace Coffee.UIEffects
             SetMaterialDirty();
 
             paramTex?.Unregister(this);
-
-            if (_lastMaterialHash != default)
-            {
-                MaterialCache.Return(_lastMaterialHash);
-                _lastMaterialHash = default;
-            }
         }
     }
 }

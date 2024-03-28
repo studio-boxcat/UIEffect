@@ -12,8 +12,6 @@ namespace Coffee.UIEffects
     [AddComponentMenu("UI/UIEffects/UIEffect", 1)]
     public class UIEffect : BaseMaterialEffect
     {
-        static readonly ParameterTexture s_ParamTex = new(4, 64, "_ParamTex");
-
         [Tooltip("Color effect factor between 0(no effect) and 1(complete effect).")]
         [SerializeField] [Range(0, 1)]
         [OnValueChanged(nameof(SetEffectParamsDirty))]
@@ -56,38 +54,11 @@ namespace Coffee.UIEffects
         /// <summary>
         /// Gets the parameter texture.
         /// </summary>
-        public override ParameterTexture paramTex => s_ParamTex;
+        public override ParameterTexture paramTex => MaterialCatalog.ParamEffect;
 
-        protected override ulong GetMaterialHash(Material baseMaterial)
+        protected override Material GetEffectMaterial(Material baseMaterial)
         {
-            return MaterialCache.GetMaterialHash(baseMaterial, (int) m_ColorMode);
-        }
-
-        protected override Material CreateMaterial(Material baseMaterial)
-        {
-            var newShader = ShaderRepo.GetEffect(baseMaterial.shader.name);
-            if (newShader is null)
-            {
-                Debug.LogError($"[UIEffect] No shader found for {baseMaterial.shader.name}");
-                return null;
-            }
-
-            var material = new Material(baseMaterial)
-            {
-                shader = newShader,
-                hideFlags = HideFlags.HideAndDontSave
-            };
-
-            // When no keyword is enabled, consider it as ColorMode.Fill.
-            if (colorMode == ColorMode.Add)
-                material.EnableKeyword("ADD");
-
-#if DEBUG
-            material.name = $"{baseMaterial.name} (UIEffect, {colorMode})";
-#endif
-
-            paramTex.RegisterToMaterial(material);
-            return material;
+            return MaterialCatalog.GetEffect(baseMaterial.shader.name, colorMode);
         }
 
         /// <summary>
