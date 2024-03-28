@@ -66,7 +66,11 @@ namespace Coffee.UIEffects
         protected override Material CreateMaterial(Material baseMaterial)
         {
             var newShader = ShaderRepo.GetEffect(baseMaterial.shader.name);
-            if (newShader is null) return null;
+            if (newShader is null)
+            {
+                Debug.LogError($"[UIEffect] No shader found for {baseMaterial.shader.name}");
+                return null;
+            }
 
             var material = new Material(baseMaterial)
             {
@@ -77,6 +81,10 @@ namespace Coffee.UIEffects
             // When no keyword is enabled, consider it as ColorMode.Fill.
             if (colorMode == ColorMode.Add)
                 material.EnableKeyword("ADD");
+
+#if DEBUG
+            material.name = $"{baseMaterial.name} (UIEffect, {colorMode})";
+#endif
 
             paramTex.RegisterToMaterial(material);
             return material;
