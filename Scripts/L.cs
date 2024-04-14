@@ -3,7 +3,7 @@ using Debug = UnityEngine.Debug;
 
 namespace Coffee.UIEffects
 {
-    public static class L
+    static class L
     {
         [Conditional("DEBUG")]
         public static void I(string message) => Debug.Log("[UIEffect] " + message);
