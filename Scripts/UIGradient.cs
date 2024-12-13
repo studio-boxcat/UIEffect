@@ -128,7 +128,7 @@ namespace Coffee.UIEffects
                 var normalizedPos = Mathf.InverseLerp(min, max, pos) + m_Offset1;
 
                 // Interpolate vertex color.
-                var color = Color.LerpUnclamped(m_Color2, m_Color1, normalizedPos);
+                var color = Color.Lerp(m_Color2, m_Color1, normalizedPos);
 
                 // Correct color.
                 colors[i] *= m_ColorSpace switch
