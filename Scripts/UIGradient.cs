@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Sirenix.OdinInspector;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Coffee.UIEffects
@@ -32,6 +33,7 @@ namespace Coffee.UIEffects
         float m_Offset1;
 
         [Tooltip("Color space to correct color.")] [SerializeField]
+        [HideIf("@m_ColorSpace == ColorSpace.Uninitialized")] // Will be removed.
         ColorSpace m_ColorSpace = ColorSpace.Uninitialized;
 
         /// <summary>
@@ -86,20 +88,6 @@ namespace Coffee.UIEffects
             {
                 if (Mathf.Approximately(m_Offset1, value)) return;
                 m_Offset1 = value;
-                SetVerticesDirty();
-            }
-        }
-
-        /// <summary>
-        /// Color space to correct color.
-        /// </summary>
-        public ColorSpace colorSpace
-        {
-            get { return m_ColorSpace; }
-            set
-            {
-                if (m_ColorSpace == value) return;
-                m_ColorSpace = value;
                 SetVerticesDirty();
             }
         }
