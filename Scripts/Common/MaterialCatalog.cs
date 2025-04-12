@@ -41,7 +41,7 @@ namespace Coffee.UIEffects
 
         public static Material GetShiny(string baseShaderName)
         {
-            Assert.IsTrue(baseShaderName is "UI/Default" or "UI/PremultAlpha",
+            Assert.IsTrue(baseShaderName is "UI/Default" or "MeowTower/UI/UI-PremultAlpha",
                 "Only UI/Default and UI/PremultAlpha are supported.");
 
             return baseShaderName is "UI/Default"
