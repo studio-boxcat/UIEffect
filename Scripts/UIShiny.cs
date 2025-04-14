@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using Sirenix.OdinInspector;
+using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -9,6 +11,9 @@ namespace Coffee.UIEffects
     /// </summary>
     [AddComponentMenu("UI/UIEffects/UIShiny", 2)]
     public class UIShiny : BaseMaterialEffect
+#if UNITY_EDITOR
+        , ISelfValidator
+#endif
     {
         float _lastRotation;
         EffectArea _lastEffectArea;
@@ -240,5 +245,27 @@ namespace Coffee.UIEffects
                 || _lastEffectArea != m_EffectArea)
                 SetVerticesDirty();
         }
+
+#if UNITY_EDITOR
+        void ISelfValidator.Validate(SelfValidationResult result)
+        {
+            var g = GetComponent<Graphic>();
+            if (!g || !g.material || !g.material.shader)
+            {
+                result.AddError("Graphic component is missing or has no material/shader.");
+                return;
+            }
+
+            var shader = g.material.shader;
+            try
+            {
+                MaterialCatalog.GetShiny(shader.name);
+            }
+            catch (Exception e)
+            {
+                result.AddError(e.Message);
+            }
+        }
+#endif
     }
 }
