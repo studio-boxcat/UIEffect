@@ -29,7 +29,9 @@ namespace Coffee.UIEffects
 
         public static Material GetEffect(string baseShaderName, ColorMode colorMode)
         {
-            Assert.AreEqual(baseShaderName, "UI/Default", "Only UI/Default is supported.");
+#if DEBUG
+            Assert.IsTrue( IsValidShaderName(baseShaderName), $"Invalid shader name: {baseShaderName}");
+#endif
 
             return colorMode switch
             {
@@ -38,6 +40,10 @@ namespace Coffee.UIEffects
                 _ => throw new System.NotSupportedException("Only ColorMode.Add and ColorMode.Fill are supported.")
             };
         }
+
+#if DEBUG
+        internal static bool IsValidShaderName(string shaderName) => shaderName is "UI/Default";
+#endif
 
         public static Material GetShiny(string baseShaderName)
         {

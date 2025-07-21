@@ -11,6 +11,9 @@ namespace Coffee.UIEffects
     [DisallowMultipleComponent]
     [AddComponentMenu("UI/UIEffects/UIEffect", 1)]
     public class UIEffect : BaseMaterialEffect
+#if UNITY_EDITOR
+        , ISelfValidator
+#endif
     {
         [Tooltip("Color effect factor between 0(no effect) and 1(complete effect).")]
         [SerializeField] [Range(0, 1)]
@@ -83,5 +86,14 @@ namespace Coffee.UIEffects
         {
             paramTex.SetData(this, 1, m_ColorFactor); // param.y : color factor
         }
+
+#if UNITY_EDITOR
+        void ISelfValidator.Validate(SelfValidationResult result)
+        {
+            var shaderName = GetComponent<Graphic>().material.shader.name;
+            if (!MaterialCatalog.IsValidShaderName(shaderName))
+                result.AddError($"The shader '{shaderName}' is not a valid UIEffect shader.");
+        }
+#endif
     }
 }
