@@ -91,7 +91,7 @@ namespace Coffee.UIEffects
         void ISelfValidator.Validate(SelfValidationResult result)
         {
             var shaderName = GetComponent<Graphic>().material.shader.name;
-            if (!MaterialCatalog.IsValidShaderName(shaderName))
+            if (!MaterialCatalog.IsValidShaderName(shaderName, colorMode))
                 result.AddError($"The shader '{shaderName}' is not a valid UIEffect shader.");
         }
 #endif

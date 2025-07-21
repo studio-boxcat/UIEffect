@@ -30,7 +30,8 @@ namespace Coffee.UIEffects
         public static Material GetEffect(string baseShaderName, ColorMode colorMode)
         {
 #if DEBUG
-            Assert.IsTrue( IsValidShaderName(baseShaderName), $"Invalid shader name: {baseShaderName}");
+            Assert.IsTrue(IsValidShaderName(baseShaderName, colorMode),
+                $"Invalid shader name: {baseShaderName}");
 #endif
 
             return colorMode switch
@@ -42,7 +43,14 @@ namespace Coffee.UIEffects
         }
 
 #if DEBUG
-        internal static bool IsValidShaderName(string shaderName) => shaderName is "UI/Default";
+        internal static bool IsValidShaderName(string shaderName, ColorMode colorMode)
+        {
+            if (colorMode is ColorMode.Add) // for add, if the shader is premult, we need to use blend function ONE+ONE, which is not implemented yet.
+                return shaderName is "UI/Default";
+            if (colorMode is ColorMode.Fill) // for fill, it does not matter whether it is premultiplied or not. the only alpha channel is used.
+                return shaderName is "UI/Default" or "MeowTower/UI/UI-PremultAlpha";
+            throw new System.NotSupportedException($"Unsupported ColorMode: {colorMode}");
+        }
 #endif
 
         public static Material GetShiny(string baseShaderName)
