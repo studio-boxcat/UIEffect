@@ -8,10 +8,11 @@ public static class Packer
     /// </summary>
     public static float Pack(float x, float y)
     {
-        x = x < 0 ? 0 : 1 < x ? 1 : x;
-        y = y < 0 ? 0 : 1 < y ? 1 : y;
-        const int PRECISION = (1 << 12) - 1;
-        return (Mathf.FloorToInt(y * PRECISION) << 12)
-               + Mathf.FloorToInt(x * PRECISION);
+        // IEEE-754 single precision has a 24-bit significand (23 stored bits + 1 hidden).
+        // Every integer ≤ 16 777 216 (2²⁴) is exact. Anything above that loses the least-significant bits.
+        const uint MAX = (1u << 12) - 1u; // 4095
+        var xi = (uint) Mathf.RoundToInt(Mathf.Clamp01(x) * MAX);
+        var yi = (uint) Mathf.RoundToInt(Mathf.Clamp01(y) * MAX);
+        return (yi << 12) | xi; // 0-24 bits only
     }
 }
