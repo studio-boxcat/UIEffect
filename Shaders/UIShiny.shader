@@ -43,8 +43,6 @@ Shader "UIEffect/UIShiny"
 			#pragma fragment frag
 			#pragma target 2.0
 
-			#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
-
 			#include "UnityUI.cginc"
 
 			#define UI_SHINY 1
@@ -57,10 +55,6 @@ Shader "UIEffect/UIShiny"
 				color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
 
 				color = ApplyShinyEffect(color, IN.eParam);
-
-				#ifdef UNITY_UI_ALPHACLIP
-				clip (color.a - 0.001);
-				#endif
 
 				return color;
 			}

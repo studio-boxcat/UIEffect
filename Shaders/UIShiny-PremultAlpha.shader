@@ -43,8 +43,6 @@ Shader "UIEffect/UIShiny-PremultAlpha"
 			#pragma fragment frag
 			#pragma target 2.0
 
-			#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
-
 			#define UI_SHINY 1
 			#include "UIEffect.cginc"
 			#include "UIEffectSprite.cginc"
@@ -65,10 +63,6 @@ Shader "UIEffect/UIShiny-PremultAlpha"
                 color.rgb *= IN.color.a;
 
 				color = ApplyShinyEffect(color, IN.eParam);
-
-				#ifdef UNITY_UI_ALPHACLIP
-				clip (color.a - 0.001);
-				#endif
 
 				return color;
 			}

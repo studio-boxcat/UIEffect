@@ -48,7 +48,6 @@
 			#pragma target 3.0
 			#endif
 
-			#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 			#pragma multi_compile_local _ ADD
 
 		#include "UnityUI.cginc"
@@ -65,10 +64,6 @@
 				half4 color = tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd;
 
 				color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
-
-				#if UNITY_UI_ALPHACLIP
-				clip (color.a - 0.001);
-				#endif
 
 				color = ApplyColorEffect(color, fixed4(IN.color.rgb, colorFactor));
 				color.a *= IN.color.a;
