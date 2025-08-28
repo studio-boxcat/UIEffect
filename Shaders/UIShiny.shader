@@ -3,7 +3,6 @@ Shader "UIEffect/UIShiny"
 	Properties
 	{
 		[HideInInspector] _Color ("Tint", Color) = (1,1,1,1)
-		[HideInInspector] _ColorMask ("Color Mask", Float) = 15
 		[HideInInspector] _ParamTex ("Parameter Texture", 2D) = "white" {}
 	}
 
@@ -21,10 +20,9 @@ Shader "UIEffect/UIShiny"
 		Stencil
 		{
 			Ref [_Stencil]
-			Comp [_StencilComp]
-			Pass [_StencilOp]
-			ReadMask [_StencilReadMask]
-			WriteMask [_StencilWriteMask]
+			Comp Equal
+			Pass Keep
+			ReadMask 255
 		}
 
 		Cull Off
@@ -32,7 +30,6 @@ Shader "UIEffect/UIShiny"
 		ZWrite Off
 		ZTest [unity_GUIZTestMode]
 		Blend SrcAlpha OneMinusSrcAlpha
-		ColorMask [_ColorMask]
 
 		Pass
 		{
