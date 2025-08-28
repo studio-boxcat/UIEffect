@@ -20,9 +20,8 @@ Shader "UIEffect/UIShiny"
 		Stencil
 		{
 			Ref [_Stencil]
-			Comp Equal
+			Comp [_StencilComp]
 			Pass Keep
-			ReadMask 255
 		}
 
 		Cull Off
